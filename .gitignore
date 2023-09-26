@@ -1,0 +1,7 @@
+# Large datafiles
+data/
+
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
