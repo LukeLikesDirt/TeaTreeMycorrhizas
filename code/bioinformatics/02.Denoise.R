@@ -74,5 +74,5 @@ saveRDS(seq_tab, file.path(data_dir, '05.Denoised/all_seqtab.rds'))
 
 # Write and save the fasta file for the merged sequence table
 write.fasta(as.list(fasta_tab$seq), fasta_tab$seq.name,
-            file.path(data_dir, '05.Denoised/all_fasta'),
+            file.path(data_dir, '05.Denoised/all.fasta'),
             open = 'w', nbchar = 60, as.string = FALSE)
