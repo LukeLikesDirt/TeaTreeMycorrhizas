@@ -7,7 +7,7 @@
 # Script: Trim primers, quality truncate, and extract ITS region from Illumina paired-end reads.
 # Purpose: Prepare Illumina paired-end reads targeting the ITS2 region for denoising with DADA2.
 # Author: Luke Florence
-# Date: 28th October 2023
+# Date: 4th November 2023
 
 # Software:
 # --------
