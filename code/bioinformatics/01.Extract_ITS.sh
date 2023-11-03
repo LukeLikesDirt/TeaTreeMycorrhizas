@@ -3,8 +3,6 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --time=168:00:00
 #SBATCH --partition=week
-#SBATCH --mem=128G
-#SBATCH --output=/data/group/frankslab/project/LFlorence/TeaTreeMycorrhizas/code/bioinformatics/slurm/%x.%j.out
 
 # Script: Trim primers, quality truncate, and extract ITS region from Illumina paired-end reads.
 # Purpose: Prepare Illumina paired-end reads targeting the ITS2 region for denoising with DADA2.
@@ -25,7 +23,7 @@
 #   (3) Extract the ITS region with ITSxpress
 
 # CHANGE ME: Absolute path to the project directory
-PROJECT_PATH="/data/group/frankslab/project/LFlorence/TeaTreeMycorrhizas"
+readonly PROJECT_PATH="/path/to/project/directory/"
 
 # Constants
 readonly NUM_THREADS=8                      # Number of threads
