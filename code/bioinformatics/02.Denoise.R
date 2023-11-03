@@ -28,7 +28,7 @@
 # which will enhance clustering as these flanking regions likely contain random
 # errors.
 
-# Load required libraries
+# Load required libraries:
 library(dada2)
 library(seqinr)
 library(here)

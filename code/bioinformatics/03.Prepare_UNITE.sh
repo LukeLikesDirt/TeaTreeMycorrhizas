@@ -123,15 +123,18 @@ prepare_UNITE_dataset() {
 
 }
 
-## Execute the prepare_UNITE_dataset function
+###############################################################################
+### Main script ###############################################################
+###############################################################################
 
 log 'Starting at:'
 
 ## Activate the conda environment
-source /data/group/frankslab/home/21258990/mambaforge/etc/profile.d/conda.sh
 conda activate shell
+
 ## Execute the function
 prepare_UNITE_dataset
+
 ## Deactivate the conda environment
 conda deactivate
 

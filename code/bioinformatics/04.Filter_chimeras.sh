@@ -10,6 +10,11 @@
 ## Author: Luke Florence.
 ## Date: 4th November 2023.
 ##
+## Software:
+## --------
+## VSEARCH v2.22.1: https://github.com/torognes/vsearch
+## perl v5.32.1: https://www.perl.org/get.html
+##
 ## Script Overview:
 ## ---------------
 ##   (1) Dereplicate across samples.
@@ -22,7 +27,7 @@
 ## By this point reads should be quality processed and dereplicated within
 ## samples. If processing ITS sequences, reads should be ITS extracted.
 ##
-## There should be one file named 'all_fasta' formatted for VSEARCH. That is,
+## There should be one file named 'all.fasta' formatted for VSEARCH. That is,
 ## each unique sequence should occupy two lines, formatted as follows:
 ##  (1) <sample_name>.fasta.<unique_ID>;size=<number_of_reads>;
 ##  (2) <the actual sequence>
@@ -47,7 +52,7 @@
 ##      referenced-based chimeras are true chimeras (Tedersoo et al. 2022, Molecular ecology 31, no. 10 (2022): 2769-2795).
 
 # CHANGE ME: Absolute path to the project directory
-readonly PROJECT_PATH="/path/to/project/directoy"
+readonly PROJECT_PATH="/path/to/project/directory"
 
 # Constants and subdirectories
 readonly THREADS=8                                                                ## Set the number of threads
@@ -160,7 +165,6 @@ track_reads() {
 log 'Starting at:'
 
 ## Activate the conda environment
-source /data/group/frankslab/home/21258990/mambaforge/etc/profile.d/conda.sh
 conda activate shell
 
 ## Dereplicate across samples and remove chimeras

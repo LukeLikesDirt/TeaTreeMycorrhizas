@@ -171,12 +171,13 @@ extract_ITS(){
     log "ITS extraction complete"
 }
 
-# Execute the main script
+###############################################################################
+### Main script ###############################################################
+###############################################################################
 
 log "Starting at:"
 
 # Activate Conda environment
-source /data/group/frankslab/home/21258990/mambaforge/etc/profile.d/conda.sh
 conda activate shell
 
 # Run the functions
