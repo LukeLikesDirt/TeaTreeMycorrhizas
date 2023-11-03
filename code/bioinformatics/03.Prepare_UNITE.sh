@@ -3,7 +3,6 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --time=168:00:00
 #SBATCH --partition=week
-#SBATCH --mem-per-cpu=32G
 
 ## Script:  Prepare UNITE dataset for chimera detection and taxonomic assignment
 ## Purpose: Extract the target ITS region from the UNITE reference dataset to
