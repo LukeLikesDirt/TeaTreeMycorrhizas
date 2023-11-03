@@ -25,7 +25,7 @@ readonly REGION="all"  ## ITSx: The target ITS region: SSU, ITS1, 5.8S, ITS2, LS
 readonly TAXA="ALL"    ## ITSx: The taxonomic group to extract: ALL, Fungi, Metazoa, Viridiplantae, Streptophyta, Rhodophyta, Protozoa, Chromista, Bacteria, Archaea, none. Extracts all taxa by default.
 
 ## File paths
-readonly UNITE_DIR="$PROJECT_PATH/data/bioinformatics/07.Reference_dataset"   ## Path to the UNITE fasta file
+readonly UNITE_DIR="$PROJECT_PATH/data/bioinformatics/06.Reference_dataset"   ## Path to the UNITE fasta file
 readonly ITS1_DIR="$UNITE_DIR/ITS1"                                           ## Path to the ITS1 fasta file
 readonly ITS2_DIR="$UNITE_DIR/ITS2"                                           ## Path to the ITS2 fasta file
 
