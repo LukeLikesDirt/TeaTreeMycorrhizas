@@ -18,9 +18,6 @@
 #   (2) Quality truncate reads with Trimmomatic
 #   (3) Extract the ITS region with ITSxpress
 
-# CHANGE ME: Absolute path to the project directory
-readonly PROJECT_PATH="/path/to/project/directory/"
-
 # Constants
 readonly NUM_THREADS=8                      # Number of threads
 readonly NUM_CORES=8                        # Number of cores
@@ -37,10 +34,10 @@ readonly TAXA="Fungi"                       # ITSxpress: The target taxa to be e
 readonly MIN_LEN=80                         # Multiple functions: Minimum length of the reads
 
 # Data subdirectories
-readonly RAW_DATA="$PROJECT_PATH/data/01.Raw_data"
-readonly PRIMERS_TRIMMED="$PROJECT_PATH/data/02.Primers_trimmed"
-readonly QUALITY_TRIMMED="$PROJECT_PATH/data/03.Quality_truncated"
-readonly ITS_EXTRACTED="$PROJECT_PATH/data/04.ITS_extracted"
+readonly RAW_DATA="../../data/01.Raw_data"
+readonly PRIMERS_TRIMMED="../../data/02.Primers_trimmed"
+readonly QUALITY_TRIMMED="../../data/03.Quality_truncated"
+readonly ITS_EXTRACTED="../../data/04.ITS_extracted"
 
 # Create data subdirectories if they do not exist
 mkdir -p "$RAW_DATA" "$PRIMERS_TRIMMED" "$QUALITY_TRIMMED" "$ITS_EXTRACTED"

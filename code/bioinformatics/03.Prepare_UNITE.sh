@@ -11,16 +11,13 @@
 ## ITSx v1.1.3: https://microbiology.se/software/itsx/
 ## HMMER v3.1b2: http://hmmer.org/
 
-# CHANGE ME: Absolute path to the project directory
-readonly PROJECT_PATH="/path/to/project/directory"
-
 ## Constants
 readonly CPUS=8              ## Set the number of CPUS
 readonly REGION="ITS1,ITS2"  ## ITSx: The target ITS region: SSU, ITS1, 5.8S, ITS2, LSU, all, none. Outputs only the actual ITS sequences (ITS1, ITS2) by default.
 readonly TAXA="Fungi"        ## ITSx: The taxonomic group to extract: ALL, Fungi, Metazoa, Viridiplantae, Streptophyta, Rhodophyta, Protozoa, Chromista, Bacteria, Archaea, none. Extracts all taxa by default.
 
 ## File paths
-readonly UNITE_DIR="$PROJECT_PATH/data/bioinformatics/07.Reference_dataset"   ## Path to the UNITE fasta file
+readonly UNITE_DIR="../../data/bioinformatics/07.Reference_dataset"   ## Path to the UNITE fasta file
 readonly ITS1_DIR="$UNITE_DIR/ITS1"                                           ## Path to the ITS1 fasta file
 readonly ITS2_DIR="$UNITE_DIR/ITS2"                                           ## Path to the ITS2 fasta file
 

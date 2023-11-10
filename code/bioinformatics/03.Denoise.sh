@@ -6,18 +6,15 @@
 ## Date: 4th November 2023.
 ## Software: VSEARCH v2.22.1: https://github.com/torognes/vsearch
 
-# CHANGE ME: Absolute path to the project directory
-readonly PROJECT_PATH="/path/to/project/directory"
-
 # Constants and subdirectories
 readonly THREADS=8
 readonly MAXEE=0.5
 readonly MINLEN=80
 readonly MAXN=0
 readonly QMAX=41
-readonly ITS_EXTRACTED_DIR="$PROJECT_PATH/data/bioinformatics/04.ITS_extracted"
-readonly QUAL_FILTERED_DIR="$PROJECT_PATH/data/bioinformatics/05.Quality_filtered_uchime3"
-readonly DENOISED_DIR="$PROJECT_PATH/data/bioinformatics/06.Denoised_uchime3"
+readonly ITS_EXTRACTED_DIR="../../data/bioinformatics/04.ITS_extracted"
+readonly QUAL_FILTERED_DIR="../../data/bioinformatics/05.Quality_filtered_uchime3"
+readonly DENOISED_DIR="../../data/bioinformatics/06.Denoised_uchime3"
 
 # Create subdirectories
 mkdir -p "$QUAL_FILTERED_DIR" "$DENOISED_DIR"

@@ -33,16 +33,13 @@
 ## page. Otherwise here is a link to wiki with an example VSEARCH pipeline that
 ## doesn't use a map.pl file: https://github.com/torognes/vsearch/wiki/Alternative-VSEARCH-pipeline
 
-# CHANGE ME: Absolute path to the project directory
-readonly PROJECT_PATH="/path/to/project/directory"
-
 ## Constants and subdirectories
 readonly THREADS=8                                                                               ## Set the number of threads
 readonly IDENTITY=0.97                                                                           ## Set the identity threshold for preclustering
-readonly MAP_SCRIPT="$PROJECT_PATH/data/bioinformatics/map.pl"                                   ## Map file for fasta reconstruction
-readonly REFERENCE_SEQS="$PROJECT_PATH/data/bioinformatics/07.Reference_dataset/ITS2/ITS2.fasta" ## Path to UNITE reference dataset                          
-readonly DENOISED_DIR="$PROJECT_PATH/data/bioinformatics/06.Denoised_uchime3"                    ## Path to denoised fasta file
-readonly CHIMERA_FILTERED_DIR="$PROJECT_PATH/data/bioinformatics/08.Chimeras_filtered_uchime3"   ## Path for chimera filtered fasta file
+readonly MAP_SCRIPT="../../data/bioinformatics/map.pl"                                   ## Map file for fasta reconstruction
+readonly REFERENCE_SEQS="../../data/bioinformatics/07.Reference_dataset/ITS2/ITS2.fasta" ## Path to UNITE reference dataset                          
+readonly DENOISED_DIR="../../data/bioinformatics/06.Denoised_uchime3"                    ## Path to denoised fasta file
+readonly CHIMERA_FILTERED_DIR="../../data/bioinformatics/08.Chimeras_filtered_uchime3"   ## Path for chimera filtered fasta file
 
 ## Create subdirectory
 mkdir -p "$CHIMERA_FILTERED_DIR"                                                  
@@ -115,7 +112,6 @@ chimera_filter() {
 ###############################################################################
 
 ## Activate the conda environment
-source /data/group/frankslab/home/21258990/mambaforge/etc/profile.d/conda.sh
 conda activate shell
 
 ## Dereplicate across samples and remove chimeras

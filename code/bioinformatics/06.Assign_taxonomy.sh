@@ -5,14 +5,11 @@
 ## Date: 5th November 2023
 ## Software: BLAST v2.14.1 - https://blast.ncbi.nlm.nih.gov/Blast.cgi
 
-# CHANGE ME: Absolute path to the project directory
-readonly PROJECT_PATH="/path/to/project/directory"
-
 # Constants and subdirectories
 readonly THREADS=8
-readonly REFERENCE_SEQUENCES="$PROJECT_PATH/data/bioinformatics/07.Reference_dataset/ITS2/ITS2"
-readonly OTU_FASTA="$PROJECT_PATH/data/bioinformatics/09.Clustered_uchime3/OTUs.fasta"
-readonly TAXA_DIR="$PROJECT_PATH/data/bioinformatics/10.Taxonomy_uchime3"
+readonly REFERENCE_SEQUENCES="../../data/bioinformatics/07.Reference_dataset/ITS2/ITS2"
+readonly OTU_FASTA="../../data/bioinformatics/09.Clustered_uchime3/OTUs.fasta"
+readonly TAXA_DIR="../../data/bioinformatics/10.Taxonomy_uchime3"
 mkdir -p "$TAXA_DIR"
 
 ## Log function
