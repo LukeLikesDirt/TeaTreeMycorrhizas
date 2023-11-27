@@ -12,4 +12,4 @@ This research investigates the mycorrhizal associations of tea tree in coastal a
 - **Terry J. Rose**: Faculty of Science and Engineering, Southern Cross University, Lismore, NSW, 2480, Australia
 - **Michael T. Rose**: Faculty of Science and Engineering, Southern Cross University, Lismore, NSW, 2480, Australia
 - **Camille Truong**: Royal Botanic Gardens Victoria, Melbourne, VIC, 3004, Australia
-- Correspondence: L.Florence@latrobe.edu.au
+- **Correspondence**: L.Florence@latrobe.edu.au
