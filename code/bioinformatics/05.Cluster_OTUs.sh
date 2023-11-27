@@ -13,7 +13,6 @@ readonly CHIMERA_FILTERED_DIR="../../data/bioinformatics/08.Chimeras_filtered_uc
 readonly CLUSTERED_DIR="../../data/bioinformatics/09.Clustered_uchime3"               ## Path to clustered fasta file and OTU table
 mkdir -p "$CLUSTERED_DIR"                                                             ## Make the clustered subdirectory
 
-
 ## Function for clustering OTUs and formatting the OTU table
 cluster_OTUs() {
 

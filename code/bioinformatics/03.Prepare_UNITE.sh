@@ -1,8 +1,6 @@
 #!/bin/bash
 
 ## Script:  Prepare UNITE dataset for chimera detection and taxonomic assignment
-## Purpose: Extract the target ITS region from the UNITE reference dataset to
-##          improve chimera detection and taxonomic assignment.
 ## Author:  Luke Florence.
 ## Date:    4th October 2023.
 

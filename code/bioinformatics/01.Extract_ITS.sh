@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Script: Trim primers, quality truncate, and extract ITS region from Illumina paired-end reads.
-# Purpose: Prepare Illumina paired-end reads targeting the ITS2 region for denoising with DADA2.
 # Author: Luke Florence
 # Date: 4th November 2023
 
@@ -33,32 +32,14 @@ readonly ITS_REGION="ITS2"                  # ITSxpress: The target ITS region t
 readonly TAXA="Fungi"                       # ITSxpress: The target taxa to be extracted. Choose from 'Alveolata', 'Bryophyta', 'Bacillariophyta', 'Amoebozoa', 'Euglenozoa', 'Fungi', 'Chlorophyta', 'Rhodophyta', 'Phaeophyceae', 'Marchantiophyta', 'Metazoa', 'Oomycota', 'Haptophyceae', 'Raphidophyceae', 'Rhizaria', 'Synurophyceae', 'Tracheophyta', 'Eustigmatophyceae', 'All'.
 readonly MIN_LEN=80                         # Multiple functions: Minimum length of the reads
 
-# Data subdirectories
+# Subdirectories
 readonly RAW_DATA="../../data/01.Raw_data"
 readonly PRIMERS_TRIMMED="../../data/02.Primers_trimmed"
 readonly QUALITY_TRIMMED="../../data/03.Quality_truncated"
 readonly ITS_EXTRACTED="../../data/04.ITS_extracted"
 
-# Create data subdirectories if they do not exist
+# Create subdirectories if they do not exist
 mkdir -p "$RAW_DATA" "$PRIMERS_TRIMMED" "$QUALITY_TRIMMED" "$ITS_EXTRACTED"
-
-# Validate paths to data subdirectories
-if [ ! -d "$RAW_DATA" ]; then
-  echo "Error: RAW_DATA path '$RAW_DATA' does not exist"
-  exit 1
-fi
-if [ ! -d "$PRIMERS_TRIMMED" ]; then
-  echo "Error: PRIMERS_TRIMMED path '$PRIMERS_TRIMMED' does not exist" 
-  exit 1
-fi
-if [ ! -d "$QUALITY_TRIMMED" ]; then
-  echo "Error: QUALITY_TRIMMED path '$QUALITY_TRIMMED' does not exist"
-  exit 1
-fi
-if [ ! -d "$ITS_EXTRACTED" ]; then
-  echo "Error: ITS_EXTRACTED path '$ITS_EXTRACTED' does not exist"
-  exit 1
-fi
 
 # Log function
 log() {
@@ -68,6 +49,7 @@ log() {
 }
 
 # Function to construct reverse-complement sequences
+# Credit: https://gsmc-fungi.github.io/
 RC () {
   echo "$1" | tr "[ATGCUatgcuNnYyRrSsWwKkMmBbDdHhVv]" "[TACGAtacgaNnRrYySsWwMmKkVvHhDdBb]" | rev
 }
@@ -114,7 +96,7 @@ trim_primers() {
   log "Primer trimming complete"
 }
 
-# Function to trim the quality of the forward and reverse reads
+# Function to quality trim the forward and reverse reads
 quality_trim() {
 
   log "Quality trimming reads"
@@ -135,7 +117,7 @@ quality_trim() {
   done
 }
 
-# Function to extract the ITS region from the forward and reverse reads
+# Function merge the forward and reverse reads and extract the ITS region
 extract_ITS() {
     log "Starting ITS extraction"
 

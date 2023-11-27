@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ## Script: Remove chimeras using de novo and reference-based chimera detection in VSEARCH.
-## Purpose: To remove chimeras prior to clustering and generating the OTU table.
 ## Credit: This script is adapted from https://github.com/torognes/vsearch/wiki/VSEARCH-pipeline
 ## Author: Luke Florence.
 ## Date: 4th November 2023.
@@ -21,7 +20,7 @@
 ## Pre-requisites:
 ## ---------------
 ## By this point reads should be quality processed and dereplicated within
-## samples. If processing ITS sequences, reads should be ITS extracted.
+## samples.
 ##
 ## There should be one file named 'all.fasta' formatted for VSEARCH. That is,
 ## each unique sequence should occupy two lines, formatted as follows:
@@ -36,7 +35,7 @@
 ## Constants and subdirectories
 readonly THREADS=8                                                                               ## Set the number of threads
 readonly IDENTITY=0.97                                                                           ## Set the identity threshold for preclustering
-readonly MAP_SCRIPT="../../data/bioinformatics/map.pl"                                   ## Map file for fasta reconstruction
+readonly MAP_SCRIPT="../../code/bioinformatics/map.pl"                                   ## Map file for fasta reconstruction
 readonly REFERENCE_SEQS="../../data/bioinformatics/07.Reference_dataset/ITS2/ITS2.fasta" ## Path to UNITE reference dataset                          
 readonly DENOISED_DIR="../../data/bioinformatics/06.Denoised_uchime3"                    ## Path to denoised fasta file
 readonly CHIMERA_FILTERED_DIR="../../data/bioinformatics/08.Chimeras_filtered_uchime3"   ## Path for chimera filtered fasta file

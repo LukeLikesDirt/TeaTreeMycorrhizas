@@ -5,7 +5,7 @@
 ## Date: 5th November 2023
 ## Software: BLAST v2.14.1 - https://blast.ncbi.nlm.nih.gov/Blast.cgi
 
-# Constants and subdirectories
+## Constants and subdirectories
 readonly THREADS=8
 readonly REFERENCE_SEQUENCES="../../data/bioinformatics/07.Reference_dataset/ITS2/ITS2"
 readonly OTU_FASTA="../../data/bioinformatics/09.Clustered_uchime3/OTUs.fasta"
