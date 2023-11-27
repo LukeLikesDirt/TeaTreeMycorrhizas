@@ -1,20 +1,26 @@
 
+# Script: Post-bioinformatics curation of OTUs and taxa
+
 # (1) Filter fungi using taxon specific similarity thresholds
 # (2) Remove low abundance OTUs
 # (3) Subset arbuscular mycorrhizal OTU and taxa tables
 # (4) Subset ectomycorrhizal OTU and taxa tables
+# (5) Assess other dominant guilds
 
 # Required packages
 source("code/statistics/functions.R")
 require(tidyverse)
 
-# (1) Filter taxa at according to similarity thresholds defined by Tedersoo et 
-#     al. (2022). Best practices in metabarcoding of fungi. Molecular Ecology,
-#     31(10), 2769-2795.
+#### (1) Filter fungi using taxon specific similarity thresholds ##############
 
-# Similarity filters
-# Note: Most fungi can be filtered at level phylum, however, there are 
-# exceptions for ectomycorrto high levels then rejoin the data.
+# Filter taxa at according to similarity thresholds defined by Tedersoo et al.
+# (2022). Best practices in metabarcoding of fungi. Molecular Ecology, 31(10),
+#2769-2795.
+
+# Similarity filters:
+# Most fungi can be filtered at level phylum, however, there are exceptions for
+# ectomycorrhizal lineages, as well as some Order and Class. I will filter from
+# low to high levels and then rejoin the data.
 similarity_EM <- read.csv('data/bioinformatics/similarity_ectomycorrhiza.csv')
 similarity_order <- read.csv('data/bioinformatics/similarity_fungi.csv') %>%
   select(order, similarity) %>%
@@ -110,21 +116,17 @@ otu <- read.table('data/bioinformatics/09.Clustered/OTUs.txt',
   column_to_rownames(var = "OTU_ID") %>%
   glimpse()
 
-# Number of quality filtered reads and OTUs annotated to fungi
-sum(otu) # Number of reads after quality filtering = 6 683 265
-nrow(otu) # Number of OTUs after quality filtering = 4 105
+# Number of quality filtered reads and OTUs annotated to guilds
+sum(otu) # Number of reads after quality filtering = 6765543
+nrow(otu) # Number of OTUs after quality filtering = 4105
 
 #### (2) Remove low abundance OTUs #############################################
 
-# Here I filter at a low threshold (0.01% or 1 in 10 000) because AM fungi are
-# not well represented in the dataset. I will apply a higher abundance threshold
-# across AM and ECM after subsetting.
-
-otu1 <- filter_low_abundance_otus(otu, threshold = 0.01)
+otu1 <- filter_low_abundance_otus(otu, threshold = 0.1)
 
 # Number of reads and OTUs after within sample low abundance filter
-sum(otu1) # Reads after quality and low abundance filtering = 6 642 663
-nrow(otu1) # OTUs after quality and low abundance filtering = 1 233
+sum(otu1) # Reads after low abundance filtering = 6589721
+nrow(otu1) # OTUs after low abundance filtering = 469
 
 # Filter taxa to OTUs
 taxa2 <- taxa1 %>%
@@ -133,11 +135,14 @@ taxa2 <- taxa1 %>%
   glimpse()
 nrow(taxa2)
 
-#### (3) Subset arbuscular mycorrhizal OTU and taxa tables #####################
+# Write OTU and taxa tables
+taxa2 %>%
+  write_csv('data/statistics/taxa_fungi.csv')
+otu1 %>%
+  rownames_to_column(var = 'OTU_ID') %>%
+  write_csv('data/statistics/otu_fungi.csv')
 
-# I assign AM fungal OTUs to Glomeromycota to using a similarity threshold of 
-# 85% and coverage of 90%, as defined by Tedersoo et al. (2022). Best practices 
-# in metabarcoding of fungi. Molecular Ecology, 31(10), 2769-2795.
+#### (3) Subset arbuscular mycorrhizal OTU and taxa tables #####################
 
 taxaAM <- taxa2 %>%
   filter(phylum == 'Glomeromycota') %>%
@@ -149,12 +154,11 @@ otuAM <- otu %>%
   rownames_to_column(var = "OTU_ID") %>%
   filter(OTU_ID %in% taxaAM$OTU_ID) %>%
   column_to_rownames(var = "OTU_ID") %>%
-  filter_low_abundance_otus(., threshold = 0.1) %>%
   glimpse()
 
 # AM quality filtered reads and OTUs
-sum(otuAM) # Number of reads after quality filtering = 82 240
-nrow(otuAM) # Number of OTUs after quality filtering = 69
+sum(otuAM) # Number of reads after quality filtering = 74600
+nrow(otuAM) # Number of OTUs after quality filtering = 68
 nrow(taxaAM)
 
 # Export filtered AM OTU table
@@ -180,7 +184,7 @@ read.csv('data/bioinformatics/10.Taxonomy/BLAST_best_10.csv',
   as_tibble() %>%
   print(n = Inf)
 
-# There are a few random best hits at level genus that I will amend here. 
+# There are a few randomish best hits at level genus that I will amend here. 
 # Annotations were stable at family and I should consider focusing on family.
 taxaAM1 <- taxaAM %>%
   mutate(
@@ -217,24 +221,19 @@ taxaAM1 <- taxaAM %>%
 
 #### (4) Subset ectomycorrhizal OTU and taxa tables ############################
 
-# OTUs are assigned to ECM fungi based on FungalTraits of genera (Põlme et 
-# al. (2021). FungalTraits: a user-friendly traits database of  fungi and 
-# fungus-like stramenopiles. Fungal Diversity, 105, 1–16)
-
 taxaEM <- taxa2 %>%
   filter(primary_lifestyle == 'ectomycorrhizal') %>%
   glimpse()
 
-otuEM = otu1 %>%
+otuEM = otu %>%
   rownames_to_column(var = "OTU_ID") %>%
   filter(OTU_ID %in% taxaEM$OTU_ID) %>%
   column_to_rownames(var = "OTU_ID") %>%
-  filter_low_abundance_otus(., threshold = 0.1) %>%
   glimpse()
   
 # EM quality filtered reads and OTUs
-sum(otuEM) # Number of reads before quality filtering = 3 012 772
-nrow(otuEM) # Number of OTUs before quality filtering = 112
+sum(otuEM) # Number of reads before quality filtering = 3012279
+nrow(otuEM) # Number of OTUs before quality filtering = 80
 
 # Export quality filtered EM OTU table
 otuEM %>%
@@ -263,40 +262,38 @@ taxaEM %>%
 
 #### (5) Assess other guilds ##################################################
 
-OTU_ID <- taxa2 %>%
-  select(OTU_ID, primary_lifestyle) %>%
-  inner_join(otu1 %>% rownames_to_column(var = "OTU_ID"), by = "OTU_ID") %>%
-  pivot_longer(cols = -c(OTU_ID, primary_lifestyle), names_to = "sample") %>%
-  select(OTU_ID)
-
-otu_fungi <- taxa2 %>%
-  select(OTU_ID, primary_lifestyle) %>%
-  inner_join(otu1 %>% rownames_to_column(var = "OTU_ID"), by = "OTU_ID") %>%
-  select(-OTU_ID) %>%
-  pivot_longer(-primary_lifestyle, names_to = "sample") %>%
-  group_by(primary_lifestyle) %>%
-  mutate(rel_abund = 100 * value / sum(value)) %>%
-  ungroup() %>%
-  mutate(value = replace(value, rel_abund < 0.1, 0)) %>%
-  bind_cols(OTU_ID) %>%
-  select(OTU_ID, sample, value) %>%
-  pivot_wider(id_cols = OTU_ID, names_from = "sample", values_from = "value") %>%
-  column_to_rownames(var = "OTU_ID") %>%
-  filter(rowSums(.) != 0)
-
-taxa_fungi <- taxa2 %>%
-  filter(OTU_ID %in% rownames(otu_fungi))
-
-sum(otu_fungi) # 6 346 897
-nrow(otu_fungi) # 401
-
-# Write OTU and taxa tables
-taxa_fungi %>%
-  write_csv('data/statistics/taxa_fungi.csv')
-otu_fungi %>%
-  rownames_to_column(var = 'OTU_ID') %>%
-  write_csv('data/statistics/otu_fungi.csv')
-
 # Sapratrpohs
+taxaSAP <- taxa2 %>%
+  filter(
+    grepl('soil', primary_lifestyle) |
+      grepl('litter', primary_lifestyle) |
+      grepl('wood', primary_lifestyle)) %>%
+  glimpse()
+unique(taxaSAP$primary_lifestyle)
+
+otuSAP = otu1 %>%
+  rownames_to_column(var = "OTU_ID") %>%
+  filter(OTU_ID %in% taxaSAP$OTU_ID) %>%
+  column_to_rownames(var = "OTU_ID") %>%
+  glimpse()
+
+# EM quality filtered reads and OTUs
+sum(otuSAP) # Number of reads before quality filtering = 2569111
+nrow(otuSAP) # Number of OTUs before quality filtering = 169
 
 # Plant pathogens
+# Sapratrpohs
+taxaPAT <- taxa2 %>%
+  filter(grepl('pathogen', primary_lifestyle)) %>%
+  glimpse()
+unique(taxaPAT$primary_lifestyle)
+
+otuPAT = otu1 %>%
+  rownames_to_column(var = "OTU_ID") %>%
+  filter(OTU_ID %in% taxaPAT$OTU_ID) %>%
+  column_to_rownames(var = "OTU_ID") %>%
+  glimpse()
+
+# EM quality filtered reads and OTUs
+sum(otuPAT) # Number of reads before quality filtering = 473722
+nrow(otuPAT) # Number of OTUs before quality filtering = 55
