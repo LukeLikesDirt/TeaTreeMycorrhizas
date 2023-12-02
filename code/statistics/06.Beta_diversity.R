@@ -108,7 +108,7 @@ nmdsB_AM = metaMDS(distB_AM, k = 3)
 set.seed(1986)
 nmdsB_AM = metaMDS(distB_AM, k = 3, previous.best = nmdsB_AM)
 nmdsB_AM
-# Stress = 0.067
+# Stress = 0.066
 
 # NOTE: AM Fungi were not detected at all sites; generate data file for sites 
 # with AMF
@@ -242,10 +242,10 @@ ordAMplot = ggplot(plot_AM, aes(MDS1, MDS2, colour = ecotype, fill = ecotype)) +
   theme(plot.title = element_text(hjust = 0.5, size = rel(1))) +
   geom_text(label = 'e', x = -3.4, y = 3.45, colour = 'black') +
   annotate('text', x = -3.4, y = -3.25,
-           label = "paste(\ 'Stress = 0.067')",
+           label = "paste(\ 'Stress = 0.066')",
            parse = T, size = 3.2, hjust = 0, vjust = 0)  +
   annotate('text', x = 3.2, y = -3.25,
-           label = "paste(\ '' , \ italic(F) ['39'], \ ' = 3.76*** \')",
+           label = "paste(\ '' , \ italic(F) ['39'], \ ' = 3.36*** \')",
            parse = T, size = 3.2, hjust = 0.9, vjust = 0.25)
 ordAMplot
 

@@ -150,7 +150,7 @@ report::report_table(amP.2)
 # z = 2.32; p = 0.020
 summary(amG.2)
 report::report(amG.2)
-# z = 2.48; p = 0.013
+# z = 2.60; p = 0.009
 
 # EM richness: Estimated marginal means
 emP.emm = emmeans(emP.2, ~ ecotype, type = "response") %>%

@@ -117,7 +117,7 @@ otu <- read.table('data/bioinformatics/09.Clustered/OTUs.txt',
   glimpse()
 
 # Number of quality filtered reads and OTUs annotated to guilds
-sum(otu) # Number of reads after quality filtering = 6765543
+sum(otu) # Number of reads after quality filtering = 6765149
 nrow(otu) # Number of OTUs after quality filtering = 4105
 
 #### (2) Remove low abundance OTUs #############################################
@@ -125,7 +125,7 @@ nrow(otu) # Number of OTUs after quality filtering = 4105
 otu1 <- filter_low_abundance_otus(otu, threshold = 0.1)
 
 # Number of reads and OTUs after within sample low abundance filter
-sum(otu1) # Reads after low abundance filtering = 6589721
+sum(otu1) # Reads after low abundance filtering = 6589732
 nrow(otu1) # OTUs after low abundance filtering = 469
 
 # Filter taxa to OTUs
@@ -157,7 +157,7 @@ otuAM <- otu %>%
   glimpse()
 
 # AM quality filtered reads and OTUs
-sum(otuAM) # Number of reads after quality filtering = 74600
+sum(otuAM) # Number of reads after quality filtering = 81871
 nrow(otuAM) # Number of OTUs after quality filtering = 68
 nrow(taxaAM)
 
@@ -188,8 +188,6 @@ read.csv('data/bioinformatics/10.Taxonomy/BLAST_best_10.csv',
 # Annotations were stable at family and I should consider focusing on family.
 taxaAM1 <- taxaAM %>%
   mutate(
-        genus = ifelse(OTU_ID == "fc642738e2eee360753ec56354270cf5683bdd11",
-                       "Rhizophagus", genus),
         genus = ifelse(OTU_ID == "92abe6bfbf4b7c5be5f2f87fc9ab227f19c2d982",
                        "Dominikia", genus),
         genus = ifelse(OTU_ID == "425c7ba80e82ba44ca5817191ecc5384c182cb62",
@@ -202,8 +200,6 @@ taxaAM1 <- taxaAM %>%
                        "Dominikia", genus),
         genus = ifelse(OTU_ID == "5923a04272abb45d4227c8cc3247afc564801586",
                        "Glomus", genus),
-        genus = ifelse(OTU_ID == "fb8976d6bb5be40a9def5e886b86e1cd5fe773fe",
-                       "Rhizophagus", genus),
         genus = ifelse(OTU_ID == "c1e2c7ffc6bb6ac7dddc1355ea163a52b822b5a2",
                        "Rhizophagus", genus),
         genus = ifelse(OTU_ID == "61a0d4a3944e325488fdfc5ab44e3b247e28541d",

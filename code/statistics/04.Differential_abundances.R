@@ -211,7 +211,8 @@ relabund_AM <-
   inner_join(read.csv('data/statistics/taxaAM.csv', header = TRUE),
              by = 'OTU_ID') %>%
   select(sample, taxon = genus, rel_abund) %>%
-  group_by(taxon)%>%
+  filter(!grepl("_gen_Incertae_sedis", taxon)) %>%
+  group_by(taxon) %>%
   summarise(rel_abund = round(sum(rel_abund), digits = 1))
 
 # Calculate relative abundances of EM genera
@@ -367,3 +368,4 @@ DAplot
 ggsave('output/dif_abund.pdf', width = 5, height = 3.75)
 ggsave('output/dif_abund.jpg', width = 5, height = 3.75)
 ggsave('output/dif_abund.tiff', width = 5, height = 3.75)
+
