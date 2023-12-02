@@ -122,6 +122,8 @@ nrow(otu) # Number of OTUs after quality filtering = 4105
 
 #### (2) Remove low abundance OTUs #############################################
 
+# Here I filter low-abundance OTUs using a threshold of 0.1%. This is conducted
+# within samples to account for differences in sequencing depth. 
 otu1 <- filter_low_abundance_otus(otu, threshold = 0.1)
 
 # Number of reads and OTUs after within sample low abundance filter
@@ -157,8 +159,8 @@ otuAM <- otu %>%
   glimpse()
 
 # AM quality filtered reads and OTUs
-sum(otuAM) # Number of reads after quality filtering = 81871
-nrow(otuAM) # Number of OTUs after quality filtering = 68
+sum(otuAM) # Number of AM reads = 81871
+nrow(otuAM) # Number of AM OTUs = 68
 nrow(taxaAM)
 
 # Export filtered AM OTU table
@@ -228,8 +230,8 @@ otuEM = otu %>%
   glimpse()
   
 # EM quality filtered reads and OTUs
-sum(otuEM) # Number of reads before quality filtering = 3012279
-nrow(otuEM) # Number of OTUs before quality filtering = 80
+sum(otuEM) # Number of EM reads = 3012279
+nrow(otuEM) # Number of EM OTUs = 80
 
 # Export quality filtered EM OTU table
 otuEM %>%
@@ -273,12 +275,11 @@ otuSAP = otu1 %>%
   column_to_rownames(var = "OTU_ID") %>%
   glimpse()
 
-# EM quality filtered reads and OTUs
-sum(otuSAP) # Number of reads before quality filtering = 2569111
-nrow(otuSAP) # Number of OTUs before quality filtering = 169
+# Sapratrpohs quality filtered reads and OTUs
+sum(otuSAP) # Number of sapratrpoh reads = 2569111
+nrow(otuSAP) # Number of sapratrpoh OTUs = 169
 
 # Plant pathogens
-# Sapratrpohs
 taxaPAT <- taxa2 %>%
   filter(grepl('pathogen', primary_lifestyle)) %>%
   glimpse()
@@ -290,6 +291,6 @@ otuPAT = otu1 %>%
   column_to_rownames(var = "OTU_ID") %>%
   glimpse()
 
-# EM quality filtered reads and OTUs
-sum(otuPAT) # Number of reads before quality filtering = 473722
-nrow(otuPAT) # Number of OTUs before quality filtering = 55
+# Plant pathogen quality filtered reads and OTUs
+sum(otuPAT) # Number of plant pathogen reads = 473722
+nrow(otuPAT) # Number of plant pathogen OTUs = 55
