@@ -21,7 +21,7 @@ log() {
 
 ## BLAST function
 my_blast() {
-    log 'BLAST best hit starting at'
+    log 'BLAST starting at'
 
     # blast ten hits
     blastn \
@@ -38,10 +38,7 @@ my_blast() {
 }
 
 ## Reformat taxa table function
-reformat_taxa_tables() {
-    sed -i '1s/^/OTU_ID;abundance\treference;kingdom;phylum;class;order;family;genus;species\tpident\tlength\tslen\tmismatch\tgapopen\tqstart\tqend\tsstart\tsend\tevalue\tbitscore\n/' "$TAXA_DIR/BLAST_best_hit.txt"
-    sed 's/[[:space:]]\{1,\}/;/g' "$TAXA_DIR/BLAST_best_hit.txt" > "$TAXA_DIR/BLAST_best_hit.csv"
-
+reformat_taxa_table() {
     sed -i '1s/^/OTU_ID;abundance\treference;kingdom;phylum;class;order;family;genus;species\tpident\tlength\tslen\tmismatch\tgapopen\tqstart\tqend\tsstart\tsend\tevalue\tbitscore\n/' "$TAXA_DIR/BLAST_best_10.txt"
     sed 's/[[:space:]]\{1,\}/;/g' "$TAXA_DIR/BLAST_best_10.txt" > "$TAXA_DIR/BLAST_best_10.csv"
 }
@@ -56,7 +53,7 @@ conda activate shell
 
 ## BLAST
 my_blast
-reformat_taxa_tables
+reformat_taxa_table
 
 ## Deactivate the conda environment
 conda deactivate
