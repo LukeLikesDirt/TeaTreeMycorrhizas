@@ -1,0 +1,13 @@
+# Ignore data files
+data/*
+
+# Ignore manuscript files
+manuscript/*
+
+# Ignore output files
+output/*
+
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
