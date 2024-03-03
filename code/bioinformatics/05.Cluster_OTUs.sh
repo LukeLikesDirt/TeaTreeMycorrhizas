@@ -7,11 +7,11 @@
 ## Software: VSEARCH v2.22.1 - https://github.com/torognes/vsearch
 
 ## Constants and file paths
-readonly THREADS=8                                                                    ## Set the number of threads
-readonly IDENTITY=0.97                                                                ## Set the identity threshold for clustering
-readonly CHIMERA_FILTERED_DIR="../../data/bioinformatics/08.Chimeras_filtered_uchime3" ## Path to chimera filtered fasta file
-readonly CLUSTERED_DIR="../../data/bioinformatics/09.Clustered_uchime3"               ## Path to clustered fasta file and OTU table
-mkdir -p "$CLUSTERED_DIR"                                                             ## Make the clustered subdirectory
+readonly THREADS=8                                                             ## Set the number of threads
+readonly IDENTITY=0.97                                                         ## Set the identity threshold for clustering
+readonly CHIMERA_FILTERED_DIR="../../data/bioinformatics/08.Chimeras_filtered" ## Path to chimera filtered fasta file
+readonly CLUSTERED_DIR="../../data/bioinformatics/09.Clustered"                ## Path to clustered fasta file and OTU table
+mkdir -p "$CLUSTERED_DIR"                                                      ## Make the clustered subdirectory
 
 ## Function for clustering OTUs and formatting the OTU table
 cluster_OTUs() {

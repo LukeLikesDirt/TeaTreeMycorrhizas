@@ -20,10 +20,10 @@ taxa <- read.csv('data/statistics/taxa_fungi.csv',
 otu <- read.csv('data/statistics/otu_fungi.csv', header = TRUE) %>%
   pivot_longer(-OTU_ID, names_to = 'sample')
 # AM fungal OTUs
-otuAM = read.csv('data/statistics/otuAM.csv', header = TRUE)  %>%
+otu_AM = read.csv('data/statistics/otu_AM.csv', header = TRUE)  %>%
   pivot_longer(-OTU_ID, names_to = 'sample')
 # EM fungal OTUs
-otuEM = read.csv('data/statistics/otuEM.csv', header = TRUE) %>%
+otu_ECM = read.csv('data/statistics/otu_ECM.csv', header = TRUE) %>%
   pivot_longer(-OTU_ID, names_to = 'sample')
                  
 #### (1) Calculate sequencing depth and OTU richness per sample ################
@@ -37,9 +37,9 @@ sample_depth <- otu %>%
 
 # Sample depth range
 sample_depth$n_seqs %>% range
-# Minimum sampling depth = 44 569
+# Minimum sampling depth = 51259
 min_depth <- sample_depth$n_seqs[1]
-# Minimum sampling depth = 375 649
+# Minimum sampling depth = 380142
 max_depth <- sample_depth$n_seqs[40]
 # Median sampling depth
 mid_depth <- median(sample_depth$n_seqs)
@@ -67,9 +67,9 @@ OTU_richness <- otu %>%
   print(n = Inf)
 # OTU richness range
 OTU_richness$n_OTUs %>% range
-# Minimum richness = 6
+# Minimum richness = 14
 min_rich <- OTU_richness$n_OTUs[1]
-# Max richness = 72
+# Max richness = 113
 max_rich <- OTU_richness$n_OTUs[40]
 
 #### (2) Species accumulation curves ###########################################
@@ -122,7 +122,7 @@ plot(pool_upland)
 ##### (2b) AM fungi #####
 
 # Coastal OTUs for AM fungi
-otuAM_coastal <- otuAM %>%
+otu_AM_coastal <- otu_AM %>%
   # Append data required for sub-setting (here ecotype)
   inner_join(data, by = 'sample') %>%
   filter(ecotype == 'Coastal') %>%
@@ -137,7 +137,7 @@ otuAM_coastal <- otuAM %>%
   column_to_rownames(var = 'sample')
 
 # Upland OTUs for AM fungi
-otuAM_upland = otuAM %>%
+otu_AM_upland = otu_AM %>%
   # Append data required for sub-setting (here ecotype)
   inner_join(data, by = 'sample') %>%
   filter(ecotype == 'Upland') %>%
@@ -151,15 +151,15 @@ otuAM_upland = otuAM %>%
   pivot_wider(names_from = 'OTU_ID') %>%
   column_to_rownames(var = 'sample')
 
-poolAM_coast <- poolaccum(otuAM_coastal)
-plot(poolAM_coast)
-poolAM_upland <- poolaccum(otuAM_upland)
-plot(poolAM_upland)
+pool_AM_coast <- poolaccum(otu_AM_coastal)
+plot(pool_AM_coast)
+pool_AM_upland <- poolaccum(otu_AM_upland)
+plot(pool_AM_upland)
 
 ##### (2c) EM fungi #####
 
 # Coastal OTUs for EM fungi
-otuEM_coastal <- otuEM %>%
+otu_ECM_coastal <- otu_ECM %>%
   # Append data required for sub-setting (here ecotype)
   inner_join(data, by = 'sample') %>%
   filter(ecotype == 'Coastal') %>%
@@ -174,7 +174,7 @@ otuEM_coastal <- otuEM %>%
   column_to_rownames(var = 'sample')
 
 # Upland OTUs for AM fungi
-otuEM_upland <- otuEM %>%
+otu_ECM_upland <- otu_ECM %>%
   # Append data required for sub-setting (here ecotype)
   inner_join(data, by = 'sample') %>%
   filter(ecotype == 'Upland') %>%
@@ -188,10 +188,10 @@ otuEM_upland <- otuEM %>%
   pivot_wider(names_from= 'OTU_ID') %>%
   column_to_rownames(var = 'sample')
 
-poolEM_coast <- poolaccum(otuEM_coastal)
-plot(poolEM_coast)
-poolEM_upland <- poolaccum(otuEM_upland)
-plot(poolEM_upland)
+pool_ECM_coast <- poolaccum(otu_ECM_coastal)
+plot(pool_ECM_coast)
+pool_ECM_upland <- poolaccum(otu_ECM_upland)
+plot(pool_ECM_upland)
 
 #### (3) Plots accumulation curve #############################################
 
@@ -224,7 +224,6 @@ plot_coast <- data.frame(summary(pool_coast)$S, check.names = FALSE) %>%
     plot.title = element_text(hjust = 0.5)
   ) + 
   scale_y_continuous(limits = c(0, ymax)) +
-  # geom_text(label = 'a', x = 3, y = 1600, colour = 'black') +
   labs(title = 'Coastal sites',
        x = NULL,
        y = 'Number of all fungal OTUs')
@@ -251,7 +250,6 @@ plot_upland <- data.frame(summary(pool_upland)$S, check.names = FALSE) %>%
     axis.ticks = element_blank(),
     plot.title = element_text(hjust = 0.5)
   ) + 
-  # geom_text(label = 'b', x = 3, y = 1600, colour = 'black') +
   labs(title = 'Upland sites',
        x = NULL,
        y = NULL)
@@ -259,13 +257,13 @@ plot_upland <- data.frame(summary(pool_upland)$S, check.names = FALSE) %>%
 ##### (3b) AM fungi #####
 
 # Max y-axis value for AM fungi plots
-ymax <- summary(poolAM_coast)$S %>%
+ymax <- summary(pool_AM_coast)$S %>%
   as_tibble() %>%
   select("97.5%") %>%
   max()
 
 # Coastal plot for AM fungi
-plotAM_coast <- data.frame(summary(poolAM_coast)$S, check.names = FALSE) %>%
+plot_AM_coast <- data.frame(summary(pool_AM_coast)$S, check.names = FALSE) %>%
   select(N = N, S = S, lowCI = '2.5%', upCI = '97.5%', SD = Std.Dev) %>%
   ggplot(data = ., aes(x = N,
                        y = S)) +
@@ -284,12 +282,11 @@ plotAM_coast <- data.frame(summary(poolAM_coast)$S, check.names = FALSE) %>%
     axis.ticks = element_blank()
   ) + 
   scale_y_continuous(limits = c(0, ymax)) +
-  # geom_text(label = 'a', x = 3, y = 100, colour = 'black') +
   labs(x = NULL,
        y = 'Number of AM fungal OTUs')
 
 # Upland plot for AM fungi
-plotAM_upland <- data.frame(summary(poolAM_upland)$S, check.names = FALSE) %>%
+plot_AM_upland <- data.frame(summary(pool_AM_upland)$S, check.names = FALSE) %>%
   select(N = N, S = S, lowCI = '2.5%', upCI = '97.5%', SD = Std.Dev) %>%
   ggplot(data = ., aes(x = N,
                        y = S)) +
@@ -309,20 +306,19 @@ plotAM_upland <- data.frame(summary(poolAM_upland)$S, check.names = FALSE) %>%
     axis.title = element_text(size = rel(1)),
     axis.ticks = element_blank()
   ) +
-  # geom_text(label = 'b', x = 3, y = 50, colour = 'black') +
   labs(x = NULL,
        y = NULL)
 
 ##### (3c) EM fungi #####
 
 # Max y-axis value for EM fungi plots
-ymax <- summary(poolEM_coast)$S %>%
+ymax <- summary(pool_ECM_coast)$S %>%
   as_tibble() %>%
   select("97.5%") %>%
   max()
 
 # Coastal plot for EM fungi
-plotEM_coast <- data.frame(summary(poolEM_coast)$S, check.names = FALSE) %>%
+plot_ECM_coast <- data.frame(summary(pool_ECM_coast)$S, check.names = FALSE) %>%
   select(N = N, S = S, lowCI = '2.5%', upCI = '97.5%', SD = Std.Dev) %>%
   ggplot(data = ., aes(x = N,
                        y = S)) +
@@ -341,12 +337,11 @@ plotEM_coast <- data.frame(summary(poolEM_coast)$S, check.names = FALSE) %>%
     axis.ticks = element_blank()
   ) + 
   scale_y_continuous(limits = c(0, ymax)) +
-  # geom_text(label = 'a', x = 3, y = 100, colour = 'black') +
   labs(x = 'Number of root samples',
        y = 'Number of EcM fungal OTUs')
 
 # Upland plot for EM fungi
-plotEM_upland <- data.frame(summary(poolEM_upland)$S, check.names = FALSE) %>%
+plot_ECM_upland <- data.frame(summary(pool_ECM_upland)$S, check.names = FALSE) %>%
   select(N = N, S = S, lowCI = '2.5%', upCI = '97.5%', SD = Std.Dev) %>%
   ggplot(data = ., aes(x = N,
                        y = S)) +
@@ -366,14 +361,13 @@ plotEM_upland <- data.frame(summary(poolEM_upland)$S, check.names = FALSE) %>%
     axis.title = element_text(size = rel(1)),
     axis.ticks = element_blank()
   ) + 
-  # geom_text(label = 'b', x = 3, y = 50, colour = 'black') +
   labs(x = 'Number of root samples',
        y = NULL)
 
 ##### (3d) Combine plots #####
 
-plot_coast + plot_upland + plotAM_coast + plotAM_upland + 
-  plotEM_coast + plotEM_upland + plot_layout(ncol = 2)
+plot_coast + plot_upland + plot_AM_coast + plot_AM_upland + 
+  plot_ECM_coast + plot_ECM_upland + plot_layout(ncol = 2)
 
 ggsave('output/curve_accumilation.pdf', width = 5, height = 7.5)
 ggsave('output/curve_accumilation.jpg', width = 5, height = 7.5)
@@ -413,3 +407,6 @@ map_dfr(rare_curve, bind_rows) %>%
 ggsave('output/rarecurve.pdf', width = 4, height = 4)
 ggsave('output/rarecurve.jpg', width = 4, height = 4)
 ggsave('output/rarecurve.tiff', width = 4, height = 4)
+
+# Clean the environment
+rm(list = ls())

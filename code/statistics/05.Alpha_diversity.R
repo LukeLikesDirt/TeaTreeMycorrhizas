@@ -36,7 +36,7 @@ alpha_diversity_AM = t(otuAM) %>%
 # 17.5 % of samples have zeros richness so check for zero inflation
 
 # Combine environmental data and diversity metrics
-alpha_diversity_AM  = inner_join(data, alpha_diversity_AM , by = 'sample')
+alpha_diversity_AM <- inner_join(data, alpha_diversity_AM, by = 'sample')
 
 # Fit GLMERs for richness
 amP.1 = glmer(AM_richness ~ ecotype + (1|site),
@@ -50,27 +50,18 @@ compare_performance(amP.1, amP.2)
 
 # Check assumptions
 set.seed(1986)
-res = simulateResiduals(amP.2)
-plot(res)  # Normality, homogeneity and dispersion look good
-testZeroInflation(res) # No significant issues with zero inflation
-check_predictions(amP.2) # A little wide/over predicted at the peak but not bad
+res <- simulateResiduals(amP.2)
+plot(res)
+testSpatialAutocorrelation(res, x = data$longitude,  y = data$latitude)
 
 # Fit LMERs for Shannon diversity
-amG.1 = glmmTMB(AM_shannon ~ ecotype + (1|site),
-                family = gaussian(), data = alpha_diversity_AM)
-amG.2 = glmmTMB(AM_shannon ~ ecotype + (1|site/sample),
-                family = gaussian(), data = alpha_diversity_AM)
-
-# Compare model performance
-compare_performance(amG.1, amG.2) 
-# Similar based on AIC but slightly better predilections based on 
-# RMSE. I'll stick with the nested model for consistency.
+amG.1 = lmer(AM_shannon ~ ecotype + (1|site),
+             data = alpha_diversity_AM)
 
 # Check assumptions
-set.seed(1986)
-res = simulateResiduals(amG.2)
-plot(res) # Normality, homogeneity and dispersion looks good
-check_predictions(amG.2) # A bit squirrely
+res <- simulateResiduals(amG.1)
+plot(res)
+testSpatialAutocorrelation(res, x = data$longitude,  y = data$latitude)
 
 #### (2) Assess EM diversity ###################################################
 
@@ -97,29 +88,22 @@ emP.2 = glmer(EM_richness ~ ecotype + (1|site/sample),
 
 # Compare model performance
 compare_performance(emP.1, emP.2)
-# amP.2 has a better fit based on AIC and predictions based on RMSE
+# emP.2 has a better fit based on AIC and predictions based on RMSE
+
 
 # Check assumptions
-set.seed(1986)
-res = simulateResiduals(emP.2)
-plot(res) # Normality, homogeneity and dispersion look good
-check_predictions(emP.2) # Pretty good predicitions
+res <- simulateResiduals(emP.2)
+plot(res)
+testSpatialAutocorrelation(res, x = data$longitude,  y = data$latitude)
 
 # Fit LMERs for Shannon diversity
-emG.1 = glmmTMB(EM_shannon ~ ecotype + (1|site),
-                family = gaussian(), data = alpha_diversity_EM)
-emG.2 = glmmTMB(EM_shannon ~ ecotype + (1|site/sample),
-                family = gaussian(), data = alpha_diversity_EM)
-
-# Compare model performance
-compare_performance(emG.1, emG.2)
-# More or less the same. I'll stick with the nested model for constancy.
+emG.1 = lmer(EM_shannon ~ ecotype + (1|site),
+             data = alpha_diversity_EM)
 
 # Check assumptions
-set.seed(1986)
-res = simulateResiduals(emG.2)
-plot(res) # Normality, homogeneity and dispersion looks good
-check_predictions(emG.2) # Not too bad.
+res <- simulateResiduals(emG.1)
+plot(res)
+testSpatialAutocorrelation(res, x = data$longitude,  y = data$latitude)
 
 #### (3) Print results #########################################################
 
@@ -134,7 +118,7 @@ amP.emm = emmeans(amP.2, ~ ecotype, type = "response") %>%
   select(group = ecotype, mean, upper_se, lower_se, upper_ci, lower_ci)
 amP.emm
 # AM Shannon: Estimated marginal means
-amG.emm = emmeans(amG.2, ~ ecotype, type = "response") %>%
+amG.emm = emmeans(amG.1, ~ ecotype, type = "response") %>%
   as.data.frame() %>%
   mutate(mean = emmean,
          upper_se = mean + SE,
@@ -144,12 +128,12 @@ amG.emm = emmeans(amG.2, ~ ecotype, type = "response") %>%
   select(group = ecotype, mean, upper_se, lower_se, upper_ci, lower_ci)
 amG.emm
 
-summary(amP.2)
-report::report(amP.2)
-report::report_table(amP.2)
+summary(amP.1)
+report::report(amP.1)
+report::report_table(amP.1)
 # z = 2.32; p = 0.020
-summary(amG.2)
-report::report(amG.2)
+summary(amG.1)
+report::report(amG.1)
 # z = 2.60; p = 0.009
 
 # EM richness: Estimated marginal means
@@ -163,7 +147,7 @@ emP.emm = emmeans(emP.2, ~ ecotype, type = "response") %>%
   select(group = ecotype, mean, upper_se, lower_se, upper_ci, lower_ci)
 emP.emm
 # EM Shannon: Estimated marginal means
-emG.emm = emmeans(emG.2, ~ ecotype, type = "response") %>%
+emG.emm = emmeans(emG.1, ~ ecotype, type = "response") %>%
   as.data.frame() %>%
   mutate(mean = emmean,
          upper_se = mean + SE,
@@ -177,13 +161,13 @@ summary(emP.2)
 report::report(emP.2)
 report::report_table(emP.2)
 # z = 3.48; p = 0.000505
-summary(emG.2)
-report::report(emG.2)
+summary(emG.1)
+report::report(emG.1)
 # z = 3.27; p = 0.00108
 
 #### (4) Plot AM richness ######################################################
 
-# Fitted values
+# Observed values
 AMfit = cbind(as.character(data$ecotype), fitted(amP.2)) %>%
   as.data.frame() %>%
   rename(group = V1) %>%
@@ -193,12 +177,13 @@ AMfit$value = as.numeric(AMfit$value)
 glimpse(AMfit)
 
 # Work around to overlay fitted oo GGPLOT
-am.jitter = AMfit %>%
-  mutate(lower_ci = value) %>%
-  mutate(lower_se = value) %>%
-  mutate(mean = value) %>%
-  mutate(upper_se = value) %>%
-  mutate(upper_ci = value)
+am.jitter = alpha_diversity_AM %>%
+  mutate(lower_ci = AM_richness) %>%
+  mutate(lower_se = AM_richness) %>%
+  mutate(mean = AM_richness) %>%
+  mutate(upper_se = AM_richness) %>%
+  mutate(upper_ci = AM_richness) %>%
+  rename(group = ecotype)
 
 # Plot
 richAMplot <-
@@ -212,7 +197,7 @@ richAMplot <-
   )  +
   geom_point(
     am.jitter, 
-    mapping = aes(x = group, y = value, fill = group), 
+    mapping = aes(x = group, y = AM_richness, fill = group), 
     position = position_jitter(seed = 16, width = 0.25),
     shape = 21,
     size = 2,
@@ -227,8 +212,7 @@ richAMplot <-
     axis.ticks = element_blank()
   ) +
   scale_y_continuous(
-    limits = c(0, 23),
-    breaks = c(0, 10, 20)
+    limits = c(0, 25)
   ) +
   xlab(element_blank()) + ylab('OTU richness') +
   # ggtitle('Arbuscular mycorrhizal') +
@@ -242,21 +226,31 @@ richAMplot
 
 #### (5) Plot ECM richness #####################################################
 
+# Observed values
+EMjitter = alpha_diversity_EM %>%
+  mutate(lower_ci = EM_richness) %>%
+  mutate(lower_se = EM_richness) %>%
+  mutate(mean = EM_richness) %>%
+  mutate(upper_se = EM_richness) %>%
+  mutate(upper_ci = EM_richness) %>%
+  rename(group = ecotype)
+
 # Fitted values
-EMfit = cbind(as.character((data$ecotype)), fitted(emP.2)) %>%
+EMfit = cbind(as.character(data$ecotype), fitted(emP.2)) %>%
   as.data.frame() %>%
   rename(group = V1) %>%
   rename(value = V2)
 EMfit$group = as.factor(EMfit$group)
 EMfit$value = as.numeric(EMfit$value)
 glimpse(EMfit)
-# Work around to overlay fitted values as jitter point
+
 EMjitter = EMfit %>%
   mutate(lower_ci = value) %>%
   mutate(lower_se = value) %>%
   mutate(mean = value) %>%
   mutate(upper_se = value) %>%
   mutate(upper_ci = value)
+
 # Plot
 richEMplot <-
   ggplot(emP.emm, 
@@ -284,8 +278,7 @@ richEMplot <-
     axis.ticks = element_blank()
   ) +
   scale_y_continuous(
-    limits = c(0, 23),
-    breaks = c(0, 10, 20)
+    limits = c(0, 25)
     ) +
   xlab(element_blank()) + ylab(NULL) +
   # ggtitle('Ectomycorrhizal') +
@@ -305,3 +298,4 @@ richAMEM
 ggsave('output/richness.pdf', width = 6, height = 3.25)
 ggsave('output/richness.jpg', width = 6, height = 3.25)
 ggsave('output/richness.tiff', width = 6, height = 3.25)
+

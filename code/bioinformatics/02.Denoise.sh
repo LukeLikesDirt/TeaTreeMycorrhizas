@@ -13,8 +13,8 @@ readonly MINLEN=80
 readonly MAXN=0
 readonly QMAX=41
 readonly ITS_EXTRACTED_DIR="../../data/bioinformatics/04.ITS_extracted"
-readonly QUAL_FILTERED_DIR="../../data/bioinformatics/05.Quality_filtered_uchime3"
-readonly DENOISED_DIR="../../data/bioinformatics/06.Denoised_uchime3"
+readonly QUAL_FILTERED_DIR="../../data/bioinformatics/05.Quality_filtered"
+readonly DENOISED_DIR="../../data/bioinformatics/06.Denoised"
 
 # Create subdirectories
 mkdir -p "$QUAL_FILTERED_DIR" "$DENOISED_DIR"

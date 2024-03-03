@@ -14,28 +14,38 @@ data = read.csv('data/statistics/metadata.csv',
   glimpse()
 
 # OTUs
-otuAM = t(read.csv('data/statistics/otuAM.csv',
+otu_AM = t(read.csv('data/statistics/otu_AM.csv',
                    header = TRUE, row.names = 'OTU_ID')) %>%
   as.data.frame() %>%
   rownames_to_column(var = 'sample') %>%
   as_tibble() %>%
   pivot_longer(-sample, names_to = 'OTU_ID', values_to = 'value') %>%
   glimpse()
-otuEM = t(read.csv('data/statistics/otuEM.csv',
+otu_ECM = t(read.csv('data/statistics/otu_ECM.csv',
                    header = TRUE, row.names = 'OTU_ID')) %>%
   as.data.frame() %>%
   rownames_to_column(var = 'sample') %>%
   as_tibble() %>%
   pivot_longer(-sample, names_to = 'OTU_ID', values_to = 'value')
 # Taxa
-taxaAM = read.csv('data/statistics/taxaAM.csv', header = TRUE)
-taxaEM = read.csv('data/statistics/taxaEM.csv', header = TRUE)
+taxa_AM = read.csv('data/statistics/taxa_AM.csv', header = TRUE)
+taxa_ECM = read.csv('data/statistics/taxa_ECM.csv', header = TRUE)
 
 
 #### (1) Calculate relative abundances and remove singltons ####################
 
 ##### (1a) AM Fungi ######
-relAM <- inner_join(data, otuAM, by = 'sample', multiple = 'all') %>%
+
+# Counts: For robust Aitchison
+count_AM <- t(read.csv('data/statistics/otu_AM.csv',
+                                header = TRUE, row.names = 'OTU_ID')) %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "sample") %>%
+  filter(rowSums(select(., -sample)) != 0) %>%
+  column_to_rownames(var = "sample")
+
+# Relative abundance for Bray-Curtis
+rel_AM <- inner_join(data, otu_AM, by = 'sample', multiple = 'all') %>%
   as_tibble() %>%
   select(c(sample, OTU_ID, value)) %>%
   group_by(sample, OTU_ID) %>%
@@ -63,7 +73,14 @@ relAM <- inner_join(data, otuAM, by = 'sample', multiple = 'all') %>%
   column_to_rownames(var = 'sample')
 
 ##### (1b) EM Fungi #####
-relEM <- inner_join(data, otuEM, by = 'sample', multiple = 'all') %>%
+
+# Counts: For robust Aitchison
+count_ECM <- t(read.csv('data/statistics/otu_ECM.csv',
+                       header = TRUE, row.names = 'OTU_ID')) %>%
+  as.data.frame() 
+
+# Relative abundance: For Bray Curtis
+rel_ECM <- inner_join(data, otu_ECM, by = 'sample', multiple = 'all') %>%
   as_tibble() %>%
   select(c(sample, OTU_ID, value)) %>%
   group_by(sample, OTU_ID) %>%
@@ -95,20 +112,30 @@ relEM <- inner_join(data, otuEM, by = 'sample', multiple = 'all') %>%
 ##### (2a) AM Fungi #####
 
 # Calculate Jaccard distances and NMDS points
-distJ_AM = vegdist(relAM, method = 'jaccard', binary = T)
+distJ_AM = vegdist(rel_AM, method = 'jaccard', binary = T)
 set.seed(1986)
-nmdsJ_AM = metaMDS(distJ_AM, k = 3)
-nmdsJ_AM
-# Stress = 0.059
+nmdsJ_AM = metaMDS(distJ_AM)
+# Stress = 0.103
 
 # Calculate Bray-Curtis distances and NMDS points
-distB_AM = vegdist(relAM, method = 'bray')
+distB_AM = vegdist(rel_AM, method = 'bray')
 set.seed(1986)
-nmdsB_AM = metaMDS(distB_AM, k = 3)
+nmdsB_AM = metaMDS(distB_AM)
 set.seed(1986)
-nmdsB_AM = metaMDS(distB_AM, k = 3, previous.best = nmdsB_AM)
+nmdsB_AM = metaMDS(distB_AM, previous.best = nmdsB_AM)
 nmdsB_AM
-# Stress = 0.066
+# Stress = 0.100
+
+# Call robust Aitchison distances and generate NMDS points
+dist_aitchison_AM <- read.table(
+  "data/statistics/dist_Aitchison_AM/distance-matrix.tsv",
+  header = TRUE,
+  row.names = 1) %>%
+  as.dist()
+
+set.seed(1986)
+nmds_aitchison_AM = metaMDS(dist_aitchison_AM_numeric)
+nmds_aitchison_AM
 
 # NOTE: AM Fungi were not detected at all sites; generate data file for sites 
 # with AMF
@@ -139,23 +166,36 @@ set.seed(1986)
 bdBp_AM = permutest(bdB_AM, permutations = 999)
 bdBp_AM
 
+# Differences between ecotypes using robust Aitchison distances
+set.seed(1986)
+adA_AM = adonis2(dist_aitchison_AM ~ ecotype, data = dataAM)
+adA_AM
+bdA_AM = betadisper(dist_aitchison_AM, dataAM$ecotype)
+set.seed(1986)
+bdAp_AM = permutest(bdA_AM, permutations = 999)
+bdAp_AM
+
 ##### (2b) EM Fungi #####
 
 # Calculate Jaccard distances and NMDS points
-distJ_EM = vegdist(relEM, method = 'jaccard', binary = TRUE)
+distJ_EM = vegdist(rel_ECM, method = 'jaccard', binary = TRUE)
 set.seed(1986)
-nmdsJ_EM = metaMDS(distJ_EM, k = 4)
+nmdsJ_EM = metaMDS(distJ_EM, k = 3)
 nmdsJ_EM
-# Stress = 0.100
+# Stress = 0.136
 
 # Calculate Bray-Curtis distances and NMDS points
-distB_EM = vegdist(relEM, method = 'bray')
+distB_EM = vegdist(rel_ECM, method = 'bray')
 set.seed(1986)
-nmdsB_EM = metaMDS(distB_EM, k = 3, trymax = 40)
-nmdsB_EM = metaMDS(distB_EM, k = 3, trymax = 40,
-                   previous.best = nmdsB_EM)
+nmdsB_EM = metaMDS(distB_EM, k = 3)
 nmdsB_EM
-# Stress =  0.112
+# Stress =  0.141
+
+# EM
+distA_ECM = vegdist(count_ECM, method = 'robust.aitchison')
+set.seed(1986)
+nmdsA_ECM = metaMDS(distA_ECM, k = 3, trymax = 200)
+# Stress = 0.11
 
 # Differences between ecotypes using Jaccard distances
 set.seed(1986)
@@ -175,6 +215,15 @@ set.seed(1986)
 bdBp_EM = permutest(bdB_EM, permutations = 999)
 bdBp_EM
 
+# Differences between ecotypes using Aitchson distances
+set.seed(1986)
+adA_ECM = adonis2(distA_ECM ~ ecotype, data = data)
+adA_ECM
+bdB_EM = betadisper(distB_EM, data$ecotype)
+set.seed(1986)
+bdBp_EM = permutest(bdB_EM, permutations = 999)
+bdBp_EM
+
 #### (3) Plot ordination #######################################################
 
 ##### (3a) AM Fungi #####
@@ -188,7 +237,7 @@ centroid_AM = plot_AM %>%
   summarise(NMDS1 = mean(MDS1),
             NMDS2 = mean(MDS2), .groups = 'drop')
 
-# Plot ordinatio
+# Plot the ordination
 ordAMplot = ggplot(plot_AM, aes(MDS1, MDS2, colour = ecotype, fill = ecotype)) +
   stat_ellipse(
     geom = 'polygon',

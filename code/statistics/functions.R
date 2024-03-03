@@ -1,110 +1,55 @@
 
-#### OTU curation #############################################################
-
-# The OTU table should have OTU IDs as row names and sample IDs as column
-# names. Example usage with a specified threshold of 0.01:
-# filtered_OTUs <- filter_low_abundance_otus(otu_table, threshold = 0.01)
-
-filter_low_abundance_otus <- function(OTUs, threshold = 0.01) {
-  OTUs1 <- OTUs %>%
-    t() %>%
-    as.data.frame() %>%
-    rownames_to_column(var = 'sample') %>%
+### Summarise model coefficients ###############################################
+summarise_results <- function(model, test_type, exponentiate = FALSE, standardize = NULL) {
+  # Retrieve parameter summary data
+  summary_data <- parameters(model, exponentiate = exponentiate, standardize = standardize) %>%
     as_tibble() %>%
-    pivot_longer(-sample) %>%
-    # Group by sample to account for differences in sequencing depth
-    group_by(sample) %>%
-    # Calculate relative abundance within samples
-    mutate(rel_abund = 100 * value / sum(value)) %>%
-    ungroup() %>%
-    # Remove OTUs that have relative abundance < threshold within individual
-    # samples
-    mutate(count = replace(value, rel_abund < threshold, 0)) %>%
-    select(-c(value, rel_abund)) %>%
-    pivot_wider(values_from = 'count') %>%
-    column_to_rownames(var = 'sample') %>%
-    t() %>%
-    as.data.frame() %>%
-    filter(rowSums(.) != 0) %>%
-    glimpse()
-    
-  return(OTUs1)
+    mutate(
+      Parameter = case_when(
+        Parameter == "(Intercept)" ~ "Upland ecotype (Intercept)",
+        Parameter == "ecotypeCoastal" ~ "Coastal ecotype",
+        TRUE ~ Parameter
+      ),
+      across(c(Coefficient, SE, CI, CI_low, CI_high, all_of(test_type)), ~round(., 2))
+    )
+  
+  # Return formatted summary data
+  summary_data
 }
 
-### VARIATION INFLATION FACTOR FUNCTION ########################################
 
-# To cite the VIF function, use:
-# Mixed effects models and extensions in ecology with R. (2009).
-# Zuur, AF, Ieno, EN, Walker, N, Saveliev, AA, and Smith, GM. Springer.
+### Jitter values for ggplot ##################################################
 
-# VIF function
-VIF <- function(x) {
-
-  x <- as.data.frame(x)
-  # VIF calculation
-  form    <- formula(paste("fooy ~ ", paste(strsplit(names(x), " "),
-                          collapse = " + ")))
-  x       <- data.frame(fooy = 1 + rnorm(nrow(x)) ,x)
-  lm_mod  <- lm(form, x)
-  # End VIF calculation
-  cat("\n\nVariance inflation factors\n\n")
-  print(supVIF(lm_mod))
-
+jitter_values <- function(factor_variable, model) {
+  # Create a tibble with group and fitted values
+  result <- tibble(
+    group = as.factor(factor_variable),
+    value = as.numeric(fitted(model))
+  ) 
+  
+  # Mutate columns to add jittered values
+  result <- result %>%
+    mutate(lower_ci = value,
+           lower_se = value,
+           mean = value,
+           upper_se = value,
+           upper_ci = value)
+  
+  return(result)
 }
 
-# VIF function dependency
-supVIF <- function(mod) {
+### Effect sizes for ggplot ###################################################
 
-  v <- vcov(mod)
-  assign <- attributes(model.matrix(mod))$assign
-  if (names(coefficients(mod)[1]) == "(Intercept)") {
-    v <- v[-1, -1]
-    assign <- assign[-1]
-  } else warning("No intercept: vifs may not be sensible.")
-  terms <- labels(terms(mod))
-  n.terms <- length(terms)
-  if (n.terms < 2) stop("The model contains fewer than 2 terms")
-  if (length(assign) > dim(v)[1] ) {
-    diag(tmp_cor) <- 0
-    if (any(tmp_cor == 1.0)){
-      return("Sample size is too small, 100% collinearity is present")
-    } else {
-      return("Sample size is too small")
-    }
-  }
-  R <- cov2cor(v)
-  detR <- det(R)
-  result <- matrix(0, n.terms, 3)
-  rownames(result) <- terms
-  colnames(result) <- c("GVIF", "Df", "GVIF^(1/2Df)")
-  for (term in 1:n.terms) {
-    subs <- which(assign == term)
-    result[term, 1] <- det(as.matrix(R[subs, subs])) * det(as.matrix(R[-subs, -subs])) / detR
-    result[term, 2] <- length(subs)
-  }
-  if (all(result[, 2] == 1)) {
-    result <- data.frame(GVIF=result[, 1])
-  } else {
-    result[, 3] <- result[, 1]^(1/(2 * result[, 2]))
-  }
-  invisible(result)
-
-}
-
-### STANDARDISE AND UNSTANDARDISE CONTINUOUS COVARIATES ###
-
-# Function to standardise predictors
-std <- function(x) {
-
-  (x - mean(x)) / sd(x)
-
-}
-
-# Function to back-transforms standardised predictors
-unstd <- function(x.std, x) {
-
-  x.std * sd(x) + mean(x)
-
+effect_size_coefficients <- function(model) {
+  parameters(model, effects = "fixed") %>%
+    as_tibble() %>%
+    select(Coefficient, CI_low, CI_high) %>%
+    # Here I slice the first two rows of the data frame to remove MEMs
+    slice(1:2) %>%
+    mutate(
+      ecotype = c("Upland", "Coastal"),
+      ecotype = factor(ecotype, levels = c("Upland", "Coastal"))
+    )
 }
 
 #### GGPLOT THEME ##############################################################
@@ -123,26 +68,78 @@ MyTheme <- function() {
 
 #### Alpha diversity functions #################################################
 
-# Richness function
-richness <- function(x) {
+calculate_alpha_diversity <- function(otu_table) {
   
-  sum(x > 0)
+  # Richness function
+  calculate_richness <- function(x) {
+    sum(x > 0)
+  }
   
+  # Shannon diversity function
+  calculate_shannon_diversity <- function(x) {
+    rabund = x[x > 0] / sum(x)
+    -sum(rabund * log(rabund))
+  }
+  
+  alpha_diversity <- t(otu_table) %>%
+    as.data.frame() %>%
+    rownames_to_column(var = 'sample') %>%
+    as_tibble() %>% 
+    pivot_longer(-sample) %>%
+    group_by(sample) %>%
+    summarise(
+      richness = calculate_richness(value),
+      shannon_diversity = calculate_shannon_diversity(value)
+    ) %>%
+    arrange(richness) %>%
+    print(n = Inf)
+  
+  return(alpha_diversity)
 }
 
-# Shannon diversity function
-shannon_diversity <- function(x) {
-  
-  rabund = x[x > 0] / sum(x)
-  -sum(rabund * log(rabund))
-  
-}
+### Relative abundance calculation and remove samples within a single sample ###
 
-# Relative abundance
-relabund = function(x){
+prevelance_filter_relative_abundance <- function(
+    otu_table, prevelance_threshold
+    ) {
   
-  x / sum(x)
+  # Relative abundance calculation function
+  calculate_relative_abundance <- function(x){
+    
+    x / sum(x)
+    
+  }
   
+  t(otu_table) %>%
+    as.data.frame() %>%
+    rownames_to_column(var = 'sample') %>%
+    as_tibble() %>%
+    pivot_longer(-sample, names_to = 'OTU_ID', values_to = 'value') %>%
+    # Remove zeros
+    filter(value > 0) %>%
+    # Count each occurrence of an OTU
+    mutate(count = 1) %>%
+    # Calculate prevalence
+    group_by(OTU_ID) %>%
+    mutate(prevalence = sum(count)) %>%
+    ungroup() %>%
+    # Remove taxa that occur once
+    filter(prevalence >= prevelance_threshold) %>%
+    select(-prevalence) %>%
+    # Calculate relative abundances within samples to account for differences
+    # in sequencing depth
+    group_by(sample) %>%
+    mutate(
+      rel_abund = calculate_relative_abundance(count)
+    ) %>%
+    # Remove counts
+    select(-c(count, value)) %>%
+    # Format OTU table an OTU table of relative abundances of OTUs that occur in
+    # at least two samples
+    pivot_wider(names_from = OTU_ID, values_from = rel_abund) %>%
+    replace(is.na(.), 0) %>%
+    as.data.frame() %>%
+    column_to_rownames(var = 'sample')
 }
 
 # Relative abundance
@@ -188,4 +185,12 @@ calculate_rel_abundance <- function(otu_table, taxa_table, taxon_rank) {
     summarise(rel_abund = 100 * mean(rel_abund), .groups = "drop") %>%
     mutate(across(where(is.numeric), round, 1)) %>%
     print(n = Inf)
+}
+
+### Relative abundance #########################################################
+
+relabund = function(x){
+  
+  x / sum(x)
+  
 }

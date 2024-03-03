@@ -33,12 +33,12 @@
 ## doesn't use a map.pl file: https://github.com/torognes/vsearch/wiki/Alternative-VSEARCH-pipeline
 
 ## Constants and subdirectories
-readonly THREADS=8                                                                               ## Set the number of threads
-readonly IDENTITY=0.97                                                                           ## Set the identity threshold for preclustering
+readonly THREADS=8                                                                       ## Set the number of threads
+readonly IDENTITY=0.97                                                                   ## Set the identity threshold for preclustering
 readonly MAP_SCRIPT="../../code/bioinformatics/map.pl"                                   ## Map file for fasta reconstruction
 readonly REFERENCE_SEQS="../../data/bioinformatics/07.Reference_dataset/ITS2/ITS2.fasta" ## Path to UNITE reference dataset                          
-readonly DENOISED_DIR="../../data/bioinformatics/06.Denoised_uchime3"                    ## Path to denoised fasta file
-readonly CHIMERA_FILTERED_DIR="../../data/bioinformatics/08.Chimeras_filtered_uchime3"   ## Path for chimera filtered fasta file
+readonly DENOISED_DIR="../../data/bioinformatics/06.Denoised"                            ## Path to denoised fasta file
+readonly CHIMERA_FILTERED_DIR="../../data/bioinformatics/08.Chimeras_filtered"           ## Path for chimera filtered fasta file
 
 ## Create subdirectory
 mkdir -p "$CHIMERA_FILTERED_DIR"                                                  

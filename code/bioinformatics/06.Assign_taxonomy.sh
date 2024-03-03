@@ -8,8 +8,8 @@
 ## Constants and subdirectories
 readonly THREADS=8
 readonly REFERENCE_SEQUENCES="../../data/bioinformatics/07.Reference_dataset/ITS2/ITS2"
-readonly OTU_FASTA="../../data/bioinformatics/09.Clustered_uchime3/OTUs.fasta"
-readonly TAXA_DIR="../../data/bioinformatics/10.Taxonomy_uchime3"
+readonly OTU_FASTA="../../data/bioinformatics/09.Clustered/OTUs.fasta"
+readonly TAXA_DIR="../../data/bioinformatics/10.Taxonomy"
 mkdir -p "$TAXA_DIR"
 
 ## Log function
@@ -22,18 +22,6 @@ log() {
 ## BLAST function
 my_blast() {
     log 'BLAST best hit starting at'
-
-    # Blast best hit
-    blastn \
-        -task blastn \
-        -outfmt "6 qseqid sseqid pident length slen mismatch gapopen qstart qend sstart send evalue bitscore" \
-        -strand both \
-        -query "$OTU_FASTA" \
-        -db "$REFERENCE_SEQUENCES" \
-        -max_target_seqs 1 \
-        -max_hsps 1 \
-        -out "$TAXA_DIR/BLAST_best_hit.txt" \
-        -num_threads "$THREADS"
 
     # blast ten hits
     blastn \

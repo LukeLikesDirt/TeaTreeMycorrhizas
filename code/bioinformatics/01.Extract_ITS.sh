@@ -29,7 +29,7 @@ readonly ERROR_RATE=0.1                     # Cutadapt: Maximum error rate
 readonly WINDOW=4                           # Trimmomatic: The sliding window size for averaging quality scores
 readonly QUAL=10                            # Trimmomatic: The quality threshold for sliding window trimming
 readonly ITS_REGION="ITS2"                  # ITSxpress: The target ITS region to be extracted. Choose from ITS1, ITS2, All.
-readonly TAXA="Fungi"                       # ITSxpress: The target taxa to be extracted. Choose from 'Alveolata', 'Bryophyta', 'Bacillariophyta', 'Amoebozoa', 'Euglenozoa', 'Fungi', 'Chlorophyta', 'Rhodophyta', 'Phaeophyceae', 'Marchantiophyta', 'Metazoa', 'Oomycota', 'Haptophyceae', 'Raphidophyceae', 'Rhizaria', 'Synurophyceae', 'Tracheophyta', 'Eustigmatophyceae', 'All'.
+readonly TAXA="All"                         # ITSxpress: The target taxa to be extracted. Choose from 'Alveolata', 'Bryophyta', 'Bacillariophyta', 'Amoebozoa', 'Euglenozoa', 'Fungi', 'Chlorophyta', 'Rhodophyta', 'Phaeophyceae', 'Marchantiophyta', 'Metazoa', 'Oomycota', 'Haptophyceae', 'Raphidophyceae', 'Rhizaria', 'Synurophyceae', 'Tracheophyta', 'Eustigmatophyceae', 'All'.
 readonly MIN_LEN=80                         # Multiple functions: Minimum length of the reads
 
 # Subdirectories
