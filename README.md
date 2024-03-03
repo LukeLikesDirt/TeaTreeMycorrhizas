@@ -15,6 +15,12 @@ This repository contains all code related to the manuscript "Plasticity in the d
 ## Data Availability
 The data from this study are available from the figshare repository (https://doi.org/10.26181/25241788) in nine files: an information file, sample metadata that includes root colonisation measurements, OTU sequences in fasta format, OTU-by-sample matrix and taxonomy table for all eukaryotes, as well as OTU-by-sample matrices and taxonomy tables for both arbuscular mycorrhizal and ectomycorrhizal fungi.
 
+The fungal traits data used for ECM assignment are from the following publication:
+* Põlme et al. (2020). FungalTraits: a user-friendly traits database of fungi and fungus-like stramenopiles. Fungal diversity, 105, 1-16.
+
+ECM lineage thresholds for assigning OTU to ECM are from the following publication:
+* Tedersoo et al. (2022). Best practices in metabarcoding of fungi: From experimental design to results. Molecular ecology, 31(10), 2769-2795.
+
 ## Dependencies
 This project is conducted using shell and R computing environments and the following software:
 
